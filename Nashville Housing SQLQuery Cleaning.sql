@@ -28,13 +28,14 @@ FROM NashvilleHousing
 WHERE PropertyAddress IS NULL
 ORDER BY ParcelID;
 
+-- Self Join table before updating 
 SELECT a.ParcelID, a.PropertyAddress, b.parcelID, b.PropertyAddress, ISNULL(a.PropertyAddress, b.PropertyAddress)
 FROM NashvilleHousing a JOIN NashvilleHousing b
 ON a.ParcelID = b.ParcelID
 AND a.[UniqueID ] <> b.[UniqueID ]
 WHERE a.PropertyAddress IS NULL;
 
--- When updating with a join, you must use the tables alias 
+-- Updating property address field 
 UPDATE a
 SET PropertyAddress = ISNULL(a.PropertyAddress, b.PropertyAddress)
 FROM NashvilleHousing a JOIN NashvilleHousing b
@@ -44,7 +45,7 @@ WHERE a.PropertyAddress IS NULL;
 
 ----------------------------------------------------------------------------------
 
---Breaking out address into individual columns (address, city, state) 
+--Breaking down property address into individual columns (address, city, state) 
 -- Delemeter (separates different columns or values)
 SELECT PropertyAddress
 FROM NashvilleHousing
@@ -75,10 +76,7 @@ FROM NashvilleHousing;
 
 
 
-
-
-
---------------------------------------------
+-- Breaking down Owners address column
 
 SELECT OwnerAddress
 FROM NashvilleHousing;
@@ -105,10 +103,10 @@ UPDATE NashvilleHousing
 SET OwnerSplitState = PARSENAME(REPLACE(OwnerAddress,',', '.'),1);
 
 
-
-
+-- Comfirming updates
 SELECT *
 FROM NashvilleHousing;
+
 
 -- Change Y or N to Yes and No in "Solid as Vacant" field 
 
