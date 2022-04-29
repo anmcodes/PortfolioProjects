@@ -1,5 +1,6 @@
-
 /* Project 1: Data Exploration*/
+
+-- Viewing Deaths Table
 SELECT *
 FROM CovidDeaths;
 
@@ -8,31 +9,31 @@ FROM CovidDeaths
 WHERE continent IS NOT NULL
 ORDER BY 3,4;
 
+
+-- Viewing Vaccinations Table
 /*SELECT *
 FROM CovidVaccinations;*/
 
---Select Data that we are going to be using 
+--Data that will be used for analysis
 SELECT location, date, total_cases, new_cases, total_deaths, population
 FROM CovidDeaths
 ORDER BY 1,2;
 
 
---Looking at Total Cases vs. Total Deaths 
--- Shows likelihood of dying if you contract COVID in your country 
+-- Total Cases vs. Total Deaths (likelihood of dying if you contract COVID in your country)
 SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
 FROM CovidDeaths
 WHERE location LIKE '%states%'
 ORDER BY 1,2;
 
 
--- Looking at Total Cases vs. Population 
--- Shows what percentage of population got COVID in a given location 
+-- Total Cases vs. Population (percentage of population got COVID in a given location)
 SELECT location, date, total_cases, population, (total_cases/population)*100 AS DeathPercentage
 FROM CovidDeaths
 WHERE location LIKE '%states%'
 ORDER BY 1,2;
 
--- Looking at countries with highest infection rates compared to populations
+-- Countries with highest infection rates compared to populations
 SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population))*100 AS PercentPopulationInfected
 FROM CovidDeaths
 --WHERE location LIKE '%states%'
@@ -40,7 +41,7 @@ GROUP BY location, population
 ORDER BY PercentPopulationInfected DESC;
 
 
--- Showing Countries with Highest Death Count Per Population 
+-- Countries with Highest Death Count Per Population 
 SELECT location, MAX(cast(total_deaths as INT)) AS TotalDeathCount
 FROM CovidDeaths
 WHERE continent IS NOT NULL
@@ -48,9 +49,8 @@ GROUP BY location
 ORDER BY TotalDeathCount DESC;
 
 
--- Let's break things down by continent 
--- Showing continents with the highest death count per population
-SELECT continent, MAX(cast(total_deaths as INT)) AS TotalDeathCount
+-- Breaking down data based on continent (continents with the highest death count per population)
+SELECT continent, MAX(CAST(total_deaths as INT)) AS TotalDeathCount
 FROM CovidDeaths
 WHERE continent IS NOT NULL
 GROUP BY continent
@@ -66,18 +66,19 @@ ORDER BY 1,2;
 
 
 
--- Let's bring up the vaccination table 
+-- Viewing vaccination table 
 SELECT *
 FROM CovidVaccinations;
 
 
--- Let's join the Death and Vaccination table together 
+-- Joining the Death and Vaccination table together 
 SELECT *
 FROM CovidDeaths dea JOIN CovidVaccinations vac
 ON dea.location = vac.location
 AND dea.date = vac.date;
 
---Looking at Total Population vs. Vaccinations
+
+--Total Population vs. Vaccinations
 SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
 SUM(CONVERT(BIGINT,vac.new_vaccinations)) OVER(PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
 FROM CovidDeaths dea JOIN CovidVaccinations vac
@@ -87,8 +88,7 @@ WHERE dea.continent IS NOT NULL
 ORDER BY 2,3;
 
 
--- USE CTE 
-
+-- Creating a CTE to analyze rolling vaccinations 
 WITH PopvsVac (Continent, Location, Date, Population, New_Vaccinations, RollingPeopleVaccinated)
 AS 
 (
@@ -131,7 +131,7 @@ FROM  #PercentPopulationVaccinated
 
 
 
--- Creating View to store data for later visualizations 
+-- Creating View to store data for later visualizations in Tableau
 
 CREATE VIEW PercentPopulationVaccinated AS
 SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations,
